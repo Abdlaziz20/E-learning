@@ -188,6 +188,18 @@ public class QuizPanel extends JPanel {
         optionsPanel.repaint();
     }
 
+    private void repaintAllOptions() {
+        for (int i = 0; i < optionsPanel.getComponentCount(); i++) {
+            Component c = optionsPanel.getComponent(i);
+            if (c instanceof JPanel) {
+                c.repaint();
+                for (Component child : ((JPanel) c).getComponents()) {
+                    child.repaint();
+                }
+            }
+        }
+    }
+
     private JPanel buildOptionButton(String letter, String text, boolean selected) {
         JPanel outer = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
@@ -199,6 +211,9 @@ public class QuizPanel extends JPanel {
                     g2.fillRoundRect(0,0,getWidth(),getHeight(),10,10);
                     g2.setColor(AppTheme.ACCENT);
                 } else {
+
+                    g2.setColor(AppTheme.BG_CARD);
+                    g2.fillRoundRect(0,0,getWidth(),getHeight(),10,10);
                     g2.setColor(AppTheme.BORDER);
                 }
                 g2.setStroke(new BasicStroke(sel ? 2f : 1f));
@@ -235,12 +250,23 @@ public class QuizPanel extends JPanel {
         rb.setForeground(AppTheme.TEXT_PRIMARY);
         rb.setOpaque(false);
         rb.setFocusPainted(false);
-        rb.addActionListener(e -> outer.repaint());
+        // ╔══════════════════════════════════════════════╗
+        // ║  FIX — remplacer outer.repaint()             ║
+        // ║  par repaintAllOptions()                     ║
+        // ╚══════════════════════════════════════════════╝
+        rb.addActionListener(e -> repaintAllOptions());
 
         btnGroup.add(rb);
 
         outer.addMouseListener(new MouseAdapter() {
-            @Override public void mouseClicked(MouseEvent e) { rb.setSelected(true); outer.repaint(); }
+            @Override public void mouseClicked(MouseEvent e) {
+                rb.setSelected(true);
+                // ╔══════════════════════════════════════════════╗
+                // ║  FIX — remplacer outer.repaint()             ║
+                // ║  par repaintAllOptions()                     ║
+                // ╚══════════════════════════════════════════════╝
+                repaintAllOptions();
+            }
         });
 
         outer.add(rb);

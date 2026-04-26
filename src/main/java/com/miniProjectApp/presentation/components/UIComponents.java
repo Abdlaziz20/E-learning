@@ -8,9 +8,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 
-/**
- * Reusable modern UI components
- */
 public class UIComponents {
 
     // ══════════════════════════════════════════════════════
@@ -56,13 +53,26 @@ public class UIComponents {
             setContentAreaFilled(false);
             setOpaque(false);
             setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            setPreferredSize(new Dimension(getPreferredSize().width, AppTheme.BTN_HEIGHT));
             setBorder(new EmptyBorder(8, 20, 8, 20));
 
             addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent e) { isHovering = true; repaint(); }
                 public void mouseExited(MouseEvent e)  { isHovering = false; repaint(); }
             });
+        }
+
+
+        @Override
+        public Dimension getPreferredSize() {
+            FontMetrics fm = getFontMetrics(AppTheme.FONT_BUTTON);
+            int textWidth = fm.stringWidth(getText());
+            // 20px padding gauche + 20px padding droite + 8px marge sécurité
+            return new Dimension(textWidth + 48, AppTheme.BTN_HEIGHT);
+        }
+
+        @Override
+        public Dimension getMinimumSize() {
+            return getPreferredSize();
         }
 
         @Override
@@ -189,15 +199,12 @@ public class UIComponents {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            // Shadow
             if (shadow) {
                 g2.setColor(new Color(0,0,0,40));
                 g2.fillRoundRect(3, 4, getWidth()-6, getHeight()-4, radius, radius);
             }
-            // Body
             g2.setColor(AppTheme.BG_CARD);
             g2.fillRoundRect(0, 0, getWidth()-2, getHeight()-2, radius, radius);
-            // Border
             g2.setColor(borderColor);
             g2.setStroke(new BasicStroke(1f));
             g2.drawRoundRect(0, 0, getWidth()-2, getHeight()-2, radius, radius);
@@ -230,7 +237,6 @@ public class UIComponents {
         table.setFillsViewportHeight(true);
         table.setOpaque(true);
 
-        // Header
         JTableHeader header = table.getTableHeader();
         header.setBackground(new Color(0x0F172A));
         header.setForeground(AppTheme.TEXT_SECONDARY);
@@ -239,16 +245,15 @@ public class UIComponents {
         header.setReorderingAllowed(false);
         ((DefaultTableCellRenderer) header.getDefaultRenderer()).setHorizontalAlignment(SwingConstants.LEFT);
 
-        // Row renderer with alternating colors
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable t, Object val, boolean selected,
-                    boolean focused, int row, int col) {
+                                                           boolean focused, int row, int col) {
                 super.getTableCellRendererComponent(t, val, selected, focused, row, col);
                 setFont(AppTheme.FONT_BODY);
                 setForeground(selected ? Color.WHITE : AppTheme.TEXT_PRIMARY);
                 setBackground(selected ? AppTheme.ACCENT :
-                    (row % 2 == 0 ? AppTheme.BG_CARD : AppTheme.BG_TABLE_ROW));
+                        (row % 2 == 0 ? AppTheme.BG_CARD : AppTheme.BG_TABLE_ROW));
                 setBorder(new EmptyBorder(4, 12, 4, 12));
                 return this;
             }
@@ -265,7 +270,7 @@ public class UIComponents {
     }
 
     // ══════════════════════════════════════════════════════
-    //  STAT CARD  (dashboard widget)
+    //  STAT CARD
     // ══════════════════════════════════════════════════════
     public static JPanel statCard(String label, String value, Color accent) {
         CardPanel card = new CardPanel(14);
@@ -273,7 +278,6 @@ public class UIComponents {
         card.setLayout(new BorderLayout(0, 6));
         card.setBorder(new EmptyBorder(18, 20, 18, 20));
 
-        // Accent bar at top
         JPanel bar = new JPanel() {
             @Override protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -313,7 +317,6 @@ public class UIComponents {
         t.setFont(AppTheme.FONT_HEADING);
         t.setForeground(AppTheme.TEXT_PRIMARY);
         t.setAlignmentX(Component.LEFT_ALIGNMENT);
-
         p.add(t);
 
         if (subtitle != null && !subtitle.isEmpty()) {
@@ -340,7 +343,7 @@ public class UIComponents {
         combo.setRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value,
-                    int index, boolean isSelected, boolean cellHasFocus) {
+                                                          int index, boolean isSelected, boolean cellHasFocus) {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 setBackground(isSelected ? AppTheme.ACCENT : AppTheme.BG_INPUT);
                 setForeground(AppTheme.TEXT_PRIMARY);
@@ -478,7 +481,7 @@ public class UIComponents {
     }
 
     // ══════════════════════════════════════════════════════
-    //  NOTIFICATION / TOAST  (shown at bottom of frame)
+    //  NOTIFICATION / TOAST
     // ══════════════════════════════════════════════════════
     public static void showToast(JFrame frame, String msg, boolean success) {
         Color bg = success ? new Color(0x10B981) : new Color(0xEF4444);
@@ -502,7 +505,7 @@ public class UIComponents {
         toast.pack();
         Point loc = frame.getLocationOnScreen();
         toast.setLocation(loc.x + frame.getWidth()/2 - toast.getWidth()/2,
-                          loc.y + frame.getHeight() - 80);
+                loc.y + frame.getHeight() - 80);
         toast.setVisible(true);
         new Timer(2500, e -> { toast.setVisible(false); toast.dispose(); }).start();
     }
